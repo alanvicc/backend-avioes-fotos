@@ -1,0 +1,21 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: alan
+      POSTGRES_DB: plane
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/migration:/flyway/sql  # Mapeia a pasta de migração para o contêiner Flyway
+    command: ["-c", "log_statement=all"]  # Opcional: Ativa o log de todas as declarações SQL
+
+  flyway:
+    image: flyway/flyway:latest
+    command: ["-url=jdbc:postgresql://postgres:5432/plane", "-user=alan", "-password=password", "migrate"]
+    volumes:
+      - ./db/migration:/flyway/sql  # Mapeia a pasta de migração para o contêiner Flyway
+    depends_on:
+      - postgres
